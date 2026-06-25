@@ -90,10 +90,11 @@ export default function BlogSection() {
 
         {/* Slider wrapper — flex-1 provides the W reference */}
         <div className="flex-1 min-w-0">
-          {/* outer: W − 50vw */}
-          <div style={{ width: "calc(100% - 50vw)" }}>
-            {/* inner: W, overflow:hidden clips at viewport right edge */}
-            <div style={{ width: "calc(100% + 50vw)", overflow: "hidden" }}>
+          {/* outer: W + 50vw, overflow:hidden — left clip at content boundary,
+              right edge always exceeds viewport so section provides the right clip */}
+          <div style={{ width: "calc(100% + 50vw)", overflow: "hidden" }}>
+            {/* inner: (W + 50vw) − 50vw = W — Swiper sized to real content width */}
+            <div style={{ width: "calc(100% - 50vw)" }}>
               <Swiper
                 grabCursor
                 slidesPerView={1.15}
