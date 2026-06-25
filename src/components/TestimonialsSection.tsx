@@ -2,6 +2,7 @@ const TESTIMONIALS = [
   {
     logo: "/testimonial-logo-1.svg",
     logoWidth: 143,
+    logoHeight: 19,
     quote:
       "A brilliant creative partner who transformed our vision into a unique, high-impact brand identity. Their ability to craft everything from custom mascots to polished logos is truly impressive.",
     author: "Marko Stojković",
@@ -13,6 +14,7 @@ const TESTIMONIALS = [
   {
     logo: "/testimonial-logo-2.svg",
     logoWidth: 138,
+    logoHeight: 19,
     quote:
       "Professional, precise, and incredibly fast at handling complex product visualizations and templates.",
     author: "Lukas Weber",
@@ -24,6 +26,7 @@ const TESTIMONIALS = [
   {
     logo: "/testimonial-logo-3.svg",
     logoWidth: 109,
+    logoHeight: 31,
     quote:
       "A strategic partner who balances stunning aesthetics with high-performance UX for complex platforms. They don't just make things look good; they solve business problems through visual clarity.",
     author: "Sarah Jenkins",
@@ -35,6 +38,7 @@ const TESTIMONIALS = [
   {
     logo: "/testimonial-logo-4.svg",
     logoWidth: 81,
+    logoHeight: 36,
     quote:
       "An incredibly versatile designer who delivers consistent quality across a wide range of styles and formats.",
     author: "Sofia Martínez",
@@ -52,7 +56,9 @@ function TestimonialCard({ testimonial }: { testimonial: (typeof TESTIMONIALS)[n
         src={testimonial.logo}
         alt=""
         aria-hidden="true"
-        style={{ width: testimonial.logoWidth, height: "auto", display: "block" }}
+        width={testimonial.logoWidth}
+        height={testimonial.logoHeight}
+        style={{ width: testimonial.logoWidth, height: testimonial.logoHeight, display: "block", flexShrink: 0 }}
       />
       <p className="text-[18px] text-[#1f1f1f] leading-[1.3] tracking-[-0.04em]">
         {testimonial.quote}
@@ -66,14 +72,15 @@ function TestimonialCard({ testimonial }: { testimonial: (typeof TESTIMONIALS)[n
 
 export default function TestimonialsSection() {
   return (
-    <section className="bg-[#fafafa] w-full">
+    // overflow-x: hidden on the section = clip boundary IS the viewport edge
+    // rotated slider cards that go off-screen look like they "go beyond the site"
+    <section className="bg-[#fafafa] w-full overflow-x-hidden">
 
       {/* ── Desktop ── */}
       <div
         className="hidden md:block relative max-w-[1440px] mx-auto px-8"
         style={{ minHeight: 900 }}
       >
-        {/* Title — absolutely centred so cards scatter around it */}
         <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
           <h2
             className="font-medium text-black text-center capitalize leading-[1.1] tracking-[-0.07em] w-full"
@@ -83,7 +90,6 @@ export default function TestimonialsSection() {
           </h2>
         </div>
 
-        {/* Cards */}
         {TESTIMONIALS.map((t) => (
           <div
             key={t.author}
@@ -100,41 +106,44 @@ export default function TestimonialsSection() {
       </div>
 
       {/* ── Mobile: scroll-snap slider ── */}
-      <div className="md:hidden pt-16 pb-4 px-4">
-        <h2 className="font-medium text-[56px] text-black capitalize text-center tracking-[-0.07em] leading-[0.85] mb-10">
+      <div className="md:hidden pt-16 pb-8">
+        <h2 className="px-4 font-medium text-[56px] text-black capitalize text-center tracking-[-0.07em] leading-[0.85] mb-10">
           Testimonials
         </h2>
 
         {/*
-          Outer wrapper: overflow-x clips left/right, but we add py so
-          rotated card corners aren't clipped vertically.
+          Scroll container is full viewport width (no px-4 here).
+          Cards go off-screen at the viewport edge — no internal clip visible.
+          Generous py gives rotated card corners room to breathe.
         */}
         <div
-          className="flex gap-6 overflow-x-auto"
           style={{
+            overflowX: "auto",
             scrollSnapType: "x mandatory",
             WebkitOverflowScrolling: "touch",
             scrollbarWidth: "none",
-            paddingTop: 24,
-            paddingBottom: 24,
+            paddingTop: 36,
+            paddingBottom: 36,
           }}
         >
-          {TESTIMONIALS.map((t) => (
-            <div
-              key={t.author}
-              className="shrink-0"
-              style={{
-                scrollSnapAlign: "center",
-                transform: `rotate(${t.mobileRotate})`,
-                width: "80vw",
-                maxWidth: 353,
-              }}
-            >
-              <TestimonialCard testimonial={t} />
-            </div>
-          ))}
-          {/* trailing spacer so the last card snaps to centre */}
-          <div className="shrink-0 w-[10vw]" aria-hidden="true" />
+          <div
+            className="flex gap-6"
+            style={{ width: "max-content", paddingLeft: 16, paddingRight: 16 }}
+          >
+            {TESTIMONIALS.map((t) => (
+              <div
+                key={t.author}
+                style={{
+                  scrollSnapAlign: "center",
+                  transform: `rotate(${t.mobileRotate})`,
+                  width: "80vw",
+                  maxWidth: 353,
+                }}
+              >
+                <TestimonialCard testimonial={t} />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
