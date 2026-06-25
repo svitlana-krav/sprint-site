@@ -1,7 +1,6 @@
 "use client";
 
 import { Swiper, SwiperSlide } from "swiper/react";
-import { FreeMode } from "swiper/modules";
 import "swiper/css";
 
 const POSTS = [
@@ -10,21 +9,21 @@ const POSTS = [
     href: "#",
     excerpt:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    offsetTop: 0,
+    desktopOffsetClass: "",
   },
   {
     image: "/blog-2.jpg",
     href: "#",
     excerpt:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    offsetTop: 120,
+    desktopOffsetClass: "md:pt-[120px]",
   },
   {
     image: "/blog-3.jpg",
     href: "#",
     excerpt:
       "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.",
-    offsetTop: 0,
+    desktopOffsetClass: "",
   },
 ];
 
@@ -52,23 +51,25 @@ export default function BlogSection() {
   return (
     <section className="bg-[#f3f3f3] w-full overflow-x-hidden">
 
-      {/* Mobile title — above the slider row, hidden on desktop */}
-      <div className="md:hidden px-4 pt-16 pb-8">
+      {/* Mobile title — hidden on desktop */}
+      <div className="md:hidden max-w-[1440px] mx-auto px-4 pt-16 pb-8">
         <p className="font-light text-[32px] text-black uppercase tracking-[-0.08em] leading-[0.86]">
           Keep up with my latest news &amp; achievements
         </p>
       </div>
 
       {/*
-        Full-width flex row with left padding only (no right padding).
-        flex-1 gives the slider a resolved width W that we feed into the trick:
-          outer  = calc(W - 50vw)   → shrinks to make room
-          inner  = calc(W - 50vw + 50vw) = W → same width as flex-1, but starts from
-                   the SAME left edge → its right edge lands exactly at the viewport edge
-          inner has overflow:hidden → clips only at the viewport right boundary
-          Swiper has overflow:visible → slides render past Swiper bounds up to that clip
+        max-w-[1440px] mx-auto keeps the title within the design grid.
+        pl-8 only (no right padding) so the overflow trick reaches the section edge.
+
+        Overflow trick:
+          flex-1 resolves to width W (section content width minus title)
+          outer = calc(W − 50vw)
+          inner = calc(W − 50vw + 50vw) = W, overflow:hidden
+          → inner right edge = section left offset + W = viewport right edge (on ≤1440px)
+          → Swiper overflow:visible renders slides past Swiper bounds; inner clips them
       */}
-      <div className="flex items-start pl-4 md:pl-8 pb-16 md:py-[120px]">
+      <div className="flex items-start max-w-[1440px] mx-auto pl-4 md:pl-8 pb-16 md:py-[120px]">
 
         {/* Desktop title — vertical rotated, hidden on mobile */}
         <div
@@ -87,15 +88,13 @@ export default function BlogSection() {
           </p>
         </div>
 
-        {/* Slider wrapper — flex-1 provides W */}
+        {/* Slider wrapper — flex-1 provides the W reference */}
         <div className="flex-1 min-w-0">
-          {/* outer: W - 50vw */}
+          {/* outer: W − 50vw */}
           <div style={{ width: "calc(100% - 50vw)" }}>
-            {/* inner: W, clips at viewport right edge */}
+            {/* inner: W, overflow:hidden clips at viewport right edge */}
             <div style={{ width: "calc(100% + 50vw)", overflow: "hidden" }}>
               <Swiper
-                modules={[FreeMode]}
-                freeMode={{ enabled: true, momentum: true }}
                 grabCursor
                 slidesPerView={1.15}
                 spaceBetween={16}
@@ -108,11 +107,9 @@ export default function BlogSection() {
                 style={{ overflow: "visible" } as React.CSSProperties}
               >
                 {POSTS.map((post, i) => (
-                  <SwiperSlide
-                    key={i}
-                    style={{ paddingTop: post.offsetTop, position: "relative" }}
-                  >
-                    {/* Divider — only between cards on desktop */}
+                  <SwiperSlide key={i} style={{ position: "relative" }}>
+
+                    {/* Divider — desktop only, centered in the 56px spaceBetween gap */}
                     {i > 0 && (
                       <div
                         className="hidden md:block absolute top-0 bottom-0 bg-[#ccc]"
@@ -120,22 +117,29 @@ export default function BlogSection() {
                       />
                     )}
 
-                    <a href={post.href} className="flex flex-col gap-4">
-                      <div
-                        className="w-full relative overflow-hidden"
-                        style={{ height: 469 }}
-                      >
-                        <img
-                          src={post.image}
-                          alt=""
-                          className="absolute inset-0 w-full h-full object-cover"
-                        />
-                      </div>
-                      <p className="text-[14px] text-[#1f1f1f] leading-[1.3] tracking-[-0.04em]">
-                        {post.excerpt}
-                      </p>
-                      <ReadMoreLink href={post.href} />
-                    </a>
+                    {/*
+                      offsetTop only on desktop via md: prefix.
+                      On mobile all slides are at the same vertical level.
+                    */}
+                    <div className={post.desktopOffsetClass}>
+                      <a href={post.href} className="flex flex-col gap-4">
+                        <div
+                          className="w-full relative overflow-hidden"
+                          style={{ height: 469 }}
+                        >
+                          <img
+                            src={post.image}
+                            alt=""
+                            className="absolute inset-0 w-full h-full object-cover"
+                          />
+                        </div>
+                        <p className="text-[14px] text-[#1f1f1f] leading-[1.3] tracking-[-0.04em]">
+                          {post.excerpt}
+                        </p>
+                        <ReadMoreLink href={post.href} />
+                      </a>
+                    </div>
+
                   </SwiperSlide>
                 ))}
               </Swiper>
