@@ -5,6 +5,7 @@ import ImageSection from "@/components/ImageSection";
 import ServicesSection from "@/components/ServicesSection";
 import WorksSection from "@/components/WorksSection";
 import TestimonialsSection from "@/components/TestimonialsSection";
+import BlogSection from "@/components/BlogSection";
 
 export default function Home() {
   return (
@@ -16,6 +17,7 @@ export default function Home() {
       <ServicesSection />
       <WorksSection />
       <TestimonialsSection />
+      <BlogSection />
     </main>
   );
 }
