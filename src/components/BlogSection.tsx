@@ -1,6 +1,8 @@
 "use client";
 
-import React, { useRef } from "react";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { FreeMode } from "swiper/modules";
+import "swiper/css";
 
 const POSTS = [
   {
@@ -46,56 +48,17 @@ function ReadMoreLink({ href }: { href: string }) {
   );
 }
 
-function DesktopSlider({ children }: { children: React.ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isDragging = useRef(false);
-  const startX = useRef(0);
-  const scrollLeftStart = useRef(0);
-
-  function onMouseDown(e: React.MouseEvent) {
-    isDragging.current = true;
-    startX.current = e.pageX;
-    scrollLeftStart.current = ref.current?.scrollLeft ?? 0;
-    if (ref.current) ref.current.style.cursor = "grabbing";
-  }
-
-  function onMouseMove(e: React.MouseEvent) {
-    if (!isDragging.current || !ref.current) return;
-    e.preventDefault();
-    ref.current.scrollLeft = scrollLeftStart.current - (e.pageX - startX.current);
-  }
-
-  function stopDrag() {
-    isDragging.current = false;
-    if (ref.current) ref.current.style.cursor = "grab";
-  }
-
-  return (
-    <div
-      ref={ref}
-      className="flex-1 min-w-0 overflow-x-auto select-none"
-      style={{ scrollbarWidth: "none", cursor: "grab" }}
-      onMouseDown={onMouseDown}
-      onMouseMove={onMouseMove}
-      onMouseUp={stopDrag}
-      onMouseLeave={stopDrag}
-    >
-      {children}
-    </div>
-  );
-}
-
 export default function BlogSection() {
   return (
     <section className="bg-[#f3f3f3] w-full overflow-x-hidden">
 
       {/* ── Desktop ──
-          pl-8 only (no right padding) → scroll container reaches section edge.
-          Section overflow-x-hidden is the right clip boundary, so the partial
-          3rd card peeks out instead of being cut off by an inner overflow. */}
+          pl-8 only (no right padding) so the Swiper extends to the section
+          edge. Section overflow-x-hidden clips at the viewport boundary,
+          letting the partial 3rd card peek out naturally. */}
       <div className="hidden md:flex items-start max-w-[1440px] mx-auto pl-8 py-[120px]">
 
-        {/* Rotated title — height 712 forces text to wrap into 2 columns */}
+        {/* Rotated title — height 712 wraps text into 2 vertical columns */}
         <div className="shrink-0 self-stretch flex items-center mr-6" style={{ width: 200 }}>
           <p
             className="font-light text-[64px] text-black uppercase tracking-[-0.08em] leading-[0.86]"
@@ -109,27 +72,40 @@ export default function BlogSection() {
           </p>
         </div>
 
-        {/* Drag-scrollable posts — extends to section right edge */}
-        <DesktopSlider>
-          {/*
-            width: max-content keeps all 3 cards in a row.
-            pr-8 gives the last card 32px breathing room from the right edge
-            when fully scrolled.
-          */}
-          <div className="flex items-start" style={{ width: "max-content", paddingRight: 32 }}>
-            {POSTS.flatMap((post, i) => {
-              const card = (
-                <a
-                  key={`card-${i}`}
-                  href={post.href}
-                  className="flex flex-col gap-4 group shrink-0"
-                  style={{
-                    width: "calc(39vw - 120px)",
-                    minWidth: 280,
-                    maxWidth: 450,
-                    marginTop: post.offsetTop,
-                  }}
-                >
+        {/*
+          overflow-visible lets slides extend past the Swiper container edge.
+          spaceBetween=56 leaves room for the 1px #ccc divider centered in the gap
+          (absolute-positioned at left:-29px on each non-first slide).
+        */}
+        <div className="flex-1 min-w-0">
+          <Swiper
+            modules={[FreeMode]}
+            freeMode={{ enabled: true, momentum: true }}
+            slidesPerView={2.5}
+            spaceBetween={56}
+            grabCursor
+            style={{ overflow: "visible" } as React.CSSProperties}
+          >
+            {POSTS.map((post, i) => (
+              <SwiperSlide
+                key={i}
+                style={{ paddingTop: post.offsetTop, position: "relative" }}
+              >
+                {/* Divider in the gap between slides */}
+                {i > 0 && (
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      bottom: 0,
+                      left: -29,
+                      width: 1,
+                      background: "#ccc",
+                    }}
+                  />
+                )}
+
+                <a href={post.href} className="flex flex-col gap-4 block">
                   <div className="w-full relative overflow-hidden" style={{ height: 469 }}>
                     <img
                       src={post.image}
@@ -142,21 +118,10 @@ export default function BlogSection() {
                   </p>
                   <ReadMoreLink href={post.href} />
                 </a>
-              );
-
-              if (i === 0) return [card];
-
-              const divider = (
-                <div
-                  key={`div-${i}`}
-                  className="self-stretch shrink-0"
-                  style={{ width: 1, background: "#ccc", margin: "0 28px" }}
-                />
-              );
-              return [divider, card];
-            })}
-          </div>
-        </DesktopSlider>
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        </div>
       </div>
 
       {/* ── Mobile ── */}
@@ -165,22 +130,16 @@ export default function BlogSection() {
           Keep up with my latest news &amp; achievements
         </p>
 
-        <div
-          className="overflow-x-auto"
-          style={{
-            scrollSnapType: "x mandatory",
-            WebkitOverflowScrolling: "touch",
-            scrollbarWidth: "none",
-          }}
+        <Swiper
+          modules={[FreeMode]}
+          freeMode={{ enabled: true, momentum: true }}
+          slidesPerView={1.15}
+          spaceBetween={16}
+          grabCursor
         >
-          <div className="flex gap-4" style={{ width: "max-content" }}>
-            {POSTS.map((post, i) => (
-              <a
-                key={i}
-                href={post.href}
-                className="flex flex-col gap-4 shrink-0 w-[300px]"
-                style={{ scrollSnapAlign: "start" }}
-              >
+          {POSTS.map((post, i) => (
+            <SwiperSlide key={i}>
+              <a href={post.href} className="flex flex-col gap-4 block">
                 <div className="h-[398px] w-full relative overflow-hidden">
                   <img
                     src={post.image}
@@ -193,9 +152,9 @@ export default function BlogSection() {
                 </p>
                 <ReadMoreLink href={post.href} />
               </a>
-            ))}
-          </div>
-        </div>
+            </SwiperSlide>
+          ))}
+        </Swiper>
       </div>
 
     </section>
