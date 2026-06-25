@@ -1,4 +1,6 @@
-import React from "react";
+"use client";
+
+import React, { useRef } from "react";
 
 const POSTS = [
   {
@@ -44,36 +46,77 @@ function ReadMoreLink({ href }: { href: string }) {
   );
 }
 
+function DesktopSlider({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isDragging = useRef(false);
+  const startX = useRef(0);
+  const scrollLeftStart = useRef(0);
+
+  function onMouseDown(e: React.MouseEvent) {
+    isDragging.current = true;
+    startX.current = e.pageX;
+    scrollLeftStart.current = ref.current?.scrollLeft ?? 0;
+    if (ref.current) ref.current.style.cursor = "grabbing";
+  }
+
+  function onMouseMove(e: React.MouseEvent) {
+    if (!isDragging.current || !ref.current) return;
+    e.preventDefault();
+    ref.current.scrollLeft = scrollLeftStart.current - (e.pageX - startX.current);
+  }
+
+  function stopDrag() {
+    isDragging.current = false;
+    if (ref.current) ref.current.style.cursor = "grab";
+  }
+
+  return (
+    <div
+      ref={ref}
+      className="flex-1 min-w-0 overflow-x-auto select-none"
+      style={{ scrollbarWidth: "none", cursor: "grab" }}
+      onMouseDown={onMouseDown}
+      onMouseMove={onMouseMove}
+      onMouseUp={stopDrag}
+      onMouseLeave={stopDrag}
+    >
+      {children}
+    </div>
+  );
+}
+
 export default function BlogSection() {
   return (
     <section className="bg-[#f3f3f3] w-full overflow-x-hidden">
 
-      {/* ── Desktop ── */}
-      <div className="hidden md:flex items-start gap-6 max-w-[1440px] mx-auto px-8 py-[120px]">
+      {/* ── Desktop ──
+          pl-8 only (no right padding) → scroll container reaches section edge.
+          Section overflow-x-hidden is the right clip boundary, so the partial
+          3rd card peeks out instead of being cut off by an inner overflow. */}
+      <div className="hidden md:flex items-start max-w-[1440px] mx-auto pl-8 py-[120px]">
 
-        {/* Rotated title — height 700 forces text to wrap into 2 columns */}
-        <div className="shrink-0 self-stretch flex items-center" style={{ width: 200 }}>
+        {/* Rotated title — height 712 forces text to wrap into 2 columns */}
+        <div className="shrink-0 self-stretch flex items-center mr-6" style={{ width: 200 }}>
           <p
             className="font-light text-[64px] text-black uppercase tracking-[-0.08em] leading-[0.86]"
             style={{
               writingMode: "vertical-rl",
               transform: "rotate(180deg)",
-              height: 700,
+              height: 712,
             }}
           >
             Keep up with my latest news &amp; achievements
           </p>
         </div>
 
-        {/*
-          Posts slider: overflow-x-auto, cards at ~39vw - 120px each.
-          On 1440px: card ≈ 442px → 2.5 cards visible in ~1200px container.
-        */}
-        <div
-          className="flex-1 min-w-0 overflow-x-auto"
-          style={{ scrollbarWidth: "none" }}
-        >
-          <div className="flex items-start" style={{ width: "max-content" }}>
+        {/* Drag-scrollable posts — extends to section right edge */}
+        <DesktopSlider>
+          {/*
+            width: max-content keeps all 3 cards in a row.
+            pr-8 gives the last card 32px breathing room from the right edge
+            when fully scrolled.
+          */}
+          <div className="flex items-start" style={{ width: "max-content", paddingRight: 32 }}>
             {POSTS.flatMap((post, i) => {
               const card = (
                 <a
@@ -113,7 +156,7 @@ export default function BlogSection() {
               return [divider, card];
             })}
           </div>
-        </div>
+        </DesktopSlider>
       </div>
 
       {/* ── Mobile ── */}
