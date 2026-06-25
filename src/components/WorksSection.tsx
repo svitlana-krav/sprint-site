@@ -117,7 +117,7 @@ export default function WorksSection() {
           <span className="font-mono text-[14px] text-[#1f1f1f] uppercase leading-[1.1]">
             [ portfolio ]
           </span>
-          <div className="flex items-end justify-between">
+          <div className="flex items-start justify-between">
             <div className="flex flex-col">
               <p className="font-light text-[32px] text-black uppercase tracking-[-0.08em] leading-[0.86]">
                 Selected
@@ -163,16 +163,20 @@ export default function WorksSection() {
         </div>
 
         {/* Desktop: 2-column staggered grid */}
-        <div className="hidden md:flex gap-6 items-start">
-          {/* Left column */}
-          <div className="flex flex-col gap-6 flex-1 min-w-0">
+        <div className="hidden md:flex gap-6">
+          {/* Left column — stretches to match right col height, CTA at bottom */}
+          <div className="flex flex-col flex-1 min-w-0">
             <ProjectCard project={PROJECTS[0]} imageClassName="h-[744px]" />
+            <div className="h-6" />
             <ProjectCard project={PROJECTS[1]} imageClassName="h-[699px]" />
-            <CtaBox />
+            <div className="flex-1 min-h-6" />
+            <div className="max-w-[465px]">
+              <CtaBox />
+            </div>
           </div>
 
-          {/* Right column — offset down */}
-          <div className="flex flex-col gap-[117px] flex-1 min-w-0 mt-[240px]">
+          {/* Right column — pt pushes content down, padding is inside flex box so container height accounts for it */}
+          <div className="flex flex-col gap-[117px] flex-1 min-w-0 pt-[240px]">
             <ProjectCard project={PROJECTS[2]} imageClassName="h-[699px]" />
             <ProjectCard project={PROJECTS[3]} imageClassName="h-[744px]" />
           </div>
