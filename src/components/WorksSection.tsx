@@ -46,7 +46,7 @@ function ProjectCard({
   imageClassName?: string;
 }) {
   return (
-    <div className="flex flex-col gap-[10px]">
+    <a href="#" className="flex flex-col gap-[10px] group">
       {/* Image */}
       <div className={`relative overflow-hidden ${imageClassName}`}>
         <img
@@ -69,12 +69,12 @@ function ProjectCard({
 
       {/* Title + arrow */}
       <div className="flex items-center justify-between">
-        <p className="font-black text-[24px] md:text-[36px] text-black uppercase tracking-[-0.04em] leading-[1.1]">
+        <p className="font-black text-[24px] md:text-[36px] text-black uppercase tracking-[-0.04em] leading-[1.1] group-hover:underline underline-offset-2">
           {project.title}
         </p>
         <ArrowIcon />
       </div>
-    </div>
+    </a>
   );
 }
 
@@ -112,14 +112,17 @@ export default function WorksSection() {
     <section className="bg-[#fafafa] w-full">
       <div className="w-full max-w-[1440px] mx-auto px-4 py-12 md:px-8 md:py-20">
 
-        {/* Header */}
-        <div className="flex items-start justify-between mb-16">
-          <div className="flex items-start gap-[10px]">
+        {/* Header — mobile */}
+        <div className="flex flex-col gap-3 mb-12 md:hidden">
+          <span className="font-mono text-[14px] text-[#1f1f1f] uppercase leading-[1.1]">
+            [ portfolio ]
+          </span>
+          <div className="flex items-end justify-between">
             <div className="flex flex-col">
-              <p className="font-light text-[32px] md:text-[min(6.67vw,96px)] text-black uppercase tracking-[-0.08em] leading-[0.86]">
+              <p className="font-light text-[32px] text-black uppercase tracking-[-0.08em] leading-[0.86]">
                 Selected
               </p>
-              <p className="font-light text-[32px] md:text-[min(6.67vw,96px)] text-black uppercase tracking-[-0.08em] leading-[0.86]">
+              <p className="font-light text-[32px] text-black uppercase tracking-[-0.08em] leading-[0.86]">
                 Work
               </p>
             </div>
@@ -127,18 +130,28 @@ export default function WorksSection() {
               004
             </span>
           </div>
+        </div>
 
-          {/* Rotated label — desktop only */}
-          <div className="hidden md:flex items-center justify-center w-[15px] h-[110px]">
+        {/* Header — desktop */}
+        <div className="hidden md:flex items-start justify-between mb-16">
+          <div className="flex items-start gap-[10px]">
+            <div className="flex flex-col">
+              <p className="font-light text-[min(6.67vw,96px)] text-black uppercase tracking-[-0.08em] leading-[0.86]">
+                Selected
+              </p>
+              <p className="font-light text-[min(6.67vw,96px)] text-black uppercase tracking-[-0.08em] leading-[0.86]">
+                Work
+              </p>
+            </div>
+            <span className="font-mono text-[14px] text-[#1f1f1f] leading-[1.1]">
+              004
+            </span>
+          </div>
+          <div className="flex items-center justify-center w-[15px] h-[110px]">
             <p className="font-mono text-[14px] text-[#1f1f1f] uppercase whitespace-nowrap -rotate-90">
               [ portfolio ]
             </p>
           </div>
-
-          {/* Mobile label */}
-          <span className="md:hidden font-mono text-[14px] text-[#1f1f1f] uppercase">
-            [ portfolio ]
-          </span>
         </div>
 
         {/* Mobile: single column */}
