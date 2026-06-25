@@ -52,14 +52,29 @@ export default function BlogSection() {
   return (
     <section className="bg-[#f3f3f3] w-full overflow-x-hidden">
 
-      {/* ── Desktop ──
-          pl-8 only (no right padding) so the Swiper extends to the section
-          edge. Section overflow-x-hidden clips at the viewport boundary,
-          letting the partial 3rd card peek out naturally. */}
-      <div className="hidden md:flex items-start max-w-[1440px] mx-auto pl-8 py-[120px]">
+      {/* Mobile title — above the slider row, hidden on desktop */}
+      <div className="md:hidden px-4 pt-16 pb-8">
+        <p className="font-light text-[32px] text-black uppercase tracking-[-0.08em] leading-[0.86]">
+          Keep up with my latest news &amp; achievements
+        </p>
+      </div>
 
-        {/* Rotated title — height 712 wraps text into 2 vertical columns */}
-        <div className="shrink-0 self-stretch flex items-center mr-6" style={{ width: 200 }}>
+      {/*
+        Full-width flex row with left padding only (no right padding).
+        flex-1 gives the slider a resolved width W that we feed into the trick:
+          outer  = calc(W - 50vw)   → shrinks to make room
+          inner  = calc(W - 50vw + 50vw) = W → same width as flex-1, but starts from
+                   the SAME left edge → its right edge lands exactly at the viewport edge
+          inner has overflow:hidden → clips only at the viewport right boundary
+          Swiper has overflow:visible → slides render past Swiper bounds up to that clip
+      */}
+      <div className="flex items-start pl-4 md:pl-8 pb-16 md:py-[120px]">
+
+        {/* Desktop title — vertical rotated, hidden on mobile */}
+        <div
+          className="hidden md:flex shrink-0 self-stretch items-center mr-6"
+          style={{ width: 200 }}
+        >
           <p
             className="font-light text-[64px] text-black uppercase tracking-[-0.08em] leading-[0.86]"
             style={{
@@ -72,91 +87,63 @@ export default function BlogSection() {
           </p>
         </div>
 
-        {/*
-          overflow-visible lets slides extend past the Swiper container edge.
-          spaceBetween=56 leaves room for the 1px #ccc divider centered in the gap
-          (absolute-positioned at left:-29px on each non-first slide).
-        */}
+        {/* Slider wrapper — flex-1 provides W */}
         <div className="flex-1 min-w-0">
-          <Swiper
-            modules={[FreeMode]}
-            freeMode={{ enabled: true, momentum: true }}
-            slidesPerView={2.5}
-            spaceBetween={56}
-            grabCursor
-            style={{ overflow: "visible" } as React.CSSProperties}
-          >
-            {POSTS.map((post, i) => (
-              <SwiperSlide
-                key={i}
-                style={{ paddingTop: post.offsetTop, position: "relative" }}
+          {/* outer: W - 50vw */}
+          <div style={{ width: "calc(100% - 50vw)" }}>
+            {/* inner: W, clips at viewport right edge */}
+            <div style={{ width: "calc(100% + 50vw)", overflow: "hidden" }}>
+              <Swiper
+                modules={[FreeMode]}
+                freeMode={{ enabled: true, momentum: true }}
+                grabCursor
+                slidesPerView={1.15}
+                spaceBetween={16}
+                breakpoints={{
+                  768: {
+                    slidesPerView: 2.5,
+                    spaceBetween: 56,
+                  },
+                }}
+                style={{ overflow: "visible" } as React.CSSProperties}
               >
-                {/* Divider in the gap between slides */}
-                {i > 0 && (
-                  <div
-                    style={{
-                      position: "absolute",
-                      top: 0,
-                      bottom: 0,
-                      left: -29,
-                      width: 1,
-                      background: "#ccc",
-                    }}
-                  />
-                )}
+                {POSTS.map((post, i) => (
+                  <SwiperSlide
+                    key={i}
+                    style={{ paddingTop: post.offsetTop, position: "relative" }}
+                  >
+                    {/* Divider — only between cards on desktop */}
+                    {i > 0 && (
+                      <div
+                        className="hidden md:block absolute top-0 bottom-0 bg-[#ccc]"
+                        style={{ width: 1, left: -29 }}
+                      />
+                    )}
 
-                <a href={post.href} className="flex flex-col gap-4 block">
-                  <div className="w-full relative overflow-hidden" style={{ height: 469 }}>
-                    <img
-                      src={post.image}
-                      alt=""
-                      className="absolute inset-0 w-full h-full object-cover"
-                    />
-                  </div>
-                  <p className="text-[14px] text-[#1f1f1f] leading-[1.3] tracking-[-0.04em]">
-                    {post.excerpt}
-                  </p>
-                  <ReadMoreLink href={post.href} />
-                </a>
-              </SwiperSlide>
-            ))}
-          </Swiper>
+                    <a href={post.href} className="flex flex-col gap-4">
+                      <div
+                        className="w-full relative overflow-hidden"
+                        style={{ height: 469 }}
+                      >
+                        <img
+                          src={post.image}
+                          alt=""
+                          className="absolute inset-0 w-full h-full object-cover"
+                        />
+                      </div>
+                      <p className="text-[14px] text-[#1f1f1f] leading-[1.3] tracking-[-0.04em]">
+                        {post.excerpt}
+                      </p>
+                      <ReadMoreLink href={post.href} />
+                    </a>
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+            </div>
+          </div>
         </div>
+
       </div>
-
-      {/* ── Mobile ── */}
-      <div className="md:hidden px-4 py-16">
-        <p className="font-light text-[32px] text-black uppercase tracking-[-0.08em] leading-[0.86] mb-8">
-          Keep up with my latest news &amp; achievements
-        </p>
-
-        <Swiper
-          modules={[FreeMode]}
-          freeMode={{ enabled: true, momentum: true }}
-          slidesPerView={1.15}
-          spaceBetween={16}
-          grabCursor
-        >
-          {POSTS.map((post, i) => (
-            <SwiperSlide key={i}>
-              <a href={post.href} className="flex flex-col gap-4 block">
-                <div className="h-[398px] w-full relative overflow-hidden">
-                  <img
-                    src={post.image}
-                    alt=""
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
-                </div>
-                <p className="text-[14px] text-[#1f1f1f] leading-[1.3] tracking-[-0.04em]">
-                  {post.excerpt}
-                </p>
-                <ReadMoreLink href={post.href} />
-              </a>
-            </SwiperSlide>
-          ))}
-        </Swiper>
-      </div>
-
     </section>
   );
 }
