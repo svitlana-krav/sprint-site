@@ -6,7 +6,7 @@ const TESTIMONIALS = [
     quote:
       "A brilliant creative partner who transformed our vision into a unique, high-impact brand identity. Their ability to craft everything from custom mascots to polished logos is truly impressive.",
     author: "Marko Stojković",
-    desktopTop: "5%",
+    desktopTop: "12%",
     desktopLeft: "7%",
     desktopRotate: "-6.85deg",
     mobileRotate: "-3.5deg",
@@ -18,7 +18,7 @@ const TESTIMONIALS = [
     quote:
       "Professional, precise, and incredibly fast at handling complex product visualizations and templates.",
     author: "Lukas Weber",
-    desktopTop: "16%",
+    desktopTop: "20%",
     desktopLeft: "47%",
     desktopRotate: "2.9deg",
     mobileRotate: "2deg",
