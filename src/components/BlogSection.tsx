@@ -27,9 +27,9 @@ const POSTS = [
   },
 ];
 
-function ReadMoreLink({ href }: { href: string }) {
+function ReadMoreLink() {
   return (
-    <a href={href} className="self-start flex items-center gap-[10px] border-b border-black pb-1">
+    <span className="self-start flex items-center gap-[10px] border-b border-black pb-1">
       <span className="font-medium text-[14px] text-black tracking-[-0.04em] leading-none">
         Read more
       </span>
@@ -43,7 +43,7 @@ function ReadMoreLink({ href }: { href: string }) {
           strokeLinejoin="round"
         />
       </svg>
-    </a>
+    </span>
   );
 }
 
@@ -137,7 +137,7 @@ export default function BlogSection() {
                         <p className="text-[14px] text-[#1f1f1f] leading-[1.3] tracking-[-0.04em]">
                           {post.excerpt}
                         </p>
-                        <ReadMoreLink href={post.href} />
+                        <ReadMoreLink />
                       </a>
                     </div>
 

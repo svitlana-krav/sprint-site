@@ -80,7 +80,7 @@ export default function FooterSection() {
           {/* Clipped H.Studio container + vertical label */}
           <div
             className="relative flex-1 min-w-0 overflow-hidden shrink-0"
-            style={{ height: 219 }}
+            style={{ height: "clamp(97px, 16.1vw, 219px)" }}
           >
             {/* [ Coded By Claude ] — vertical, far left */}
             <div className="absolute left-0 top-0 bottom-0 w-[15px] flex items-center justify-center">
@@ -92,7 +92,7 @@ export default function FooterSection() {
             {/* Large clipped text */}
             <p
               className="font-semibold text-white capitalize whitespace-nowrap select-none"
-              style={{ fontSize: 290, lineHeight: 0.8, letterSpacing: "-0.06em" }}
+              style={{ fontSize: "clamp(120px, 20.14vw, 290px)", lineHeight: 0.8, letterSpacing: "-0.06em" }}
             >
               H.Studio
             </p>
@@ -118,7 +118,7 @@ export default function FooterSection() {
           <div className="overflow-hidden w-full">
             <p
               className="font-semibold text-white capitalize whitespace-nowrap select-none"
-              style={{ fontSize: 91, lineHeight: 0.8, letterSpacing: "-0.06em" }}
+              style={{ fontSize: "clamp(50px, 24.27vw, 91px)", lineHeight: 0.8, letterSpacing: "-0.06em" }}
             >
               H.Studio
             </p>
