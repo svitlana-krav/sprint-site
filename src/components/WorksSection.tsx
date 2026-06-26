@@ -1,3 +1,52 @@
+import { client } from "@/sanity/lib/client";
+import { urlFor } from "@/sanity/lib/image";
+
+type SanityImage = { asset?: { _ref?: string; url?: string } } | string;
+
+type Project = {
+  _id: string;
+  title: string;
+  tags: string[];
+  image: SanityImage;
+  link?: string;
+};
+
+const FALLBACK_PROJECTS: Project[] = [
+  {
+    _id: "1",
+    title: "Surfers Paradise",
+    tags: ["Social Media", "Photography"],
+    image: "/works-surfers.jpg" as unknown as SanityImage,
+    link: "#",
+  },
+  {
+    _id: "2",
+    title: "Cyberpunk Caffe",
+    tags: ["Social Media", "Photography"],
+    image: "/works-cyberpunk.jpg" as unknown as SanityImage,
+    link: "#",
+  },
+  {
+    _id: "3",
+    title: "Agency 976",
+    tags: ["Social Media", "Photography"],
+    image: "/works-agency.jpg" as unknown as SanityImage,
+    link: "#",
+  },
+  {
+    _id: "4",
+    title: "Minimal Playground",
+    tags: ["Social Media", "Photography"],
+    image: "/works-minimal.jpg" as unknown as SanityImage,
+    link: "#",
+  },
+];
+
+function getImageSrc(image: SanityImage): string {
+  if (typeof image === "string") return image;
+  return urlFor(image).width(800).url();
+}
+
 function Corner({ className }: { className?: string }) {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" className={className}>
@@ -15,48 +64,23 @@ function ArrowIcon() {
   );
 }
 
-const PROJECTS = [
-  {
-    title: "Surfers Paradise",
-    tags: ["Social Media", "Photography"],
-    image: "/works-surfers.jpg",
-  },
-  {
-    title: "Cyberpunk Caffe",
-    tags: ["Social Media", "Photography"],
-    image: "/works-cyberpunk.jpg",
-  },
-  {
-    title: "Agency 976",
-    tags: ["Social Media", "Photography"],
-    image: "/works-agency.jpg",
-  },
-  {
-    title: "Minimal Playground",
-    tags: ["Social Media", "Photography"],
-    image: "/works-minimal.jpg",
-  },
-];
-
 function ProjectCard({
   project,
   imageClassName,
 }: {
-  project: (typeof PROJECTS)[number];
+  project: Project;
   imageClassName?: string;
 }) {
   return (
-    <a href="#" className="flex flex-col gap-[10px] group">
-      {/* Image */}
+    <a href={project.link ?? "#"} className="flex flex-col gap-[10px] group">
       <div className={`relative overflow-hidden ${imageClassName}`}>
         <img
-          src={project.image}
+          src={getImageSrc(project.image)}
           alt={project.title}
           className="absolute inset-0 w-full h-full object-cover"
         />
-        {/* Tags — bottom-left */}
         <div className="absolute bottom-4 left-4 flex gap-3">
-          {project.tags.map((tag) => (
+          {project.tags?.map((tag) => (
             <span
               key={tag}
               className="backdrop-blur-[10px] bg-white/30 text-[#111] text-[14px] font-medium tracking-[-0.04em] px-2 py-1 rounded-full"
@@ -67,7 +91,6 @@ function ProjectCard({
         </div>
       </div>
 
-      {/* Title + arrow */}
       <div className="flex items-center justify-between">
         <p className="font-black text-[24px] md:text-[36px] text-black uppercase tracking-[-0.04em] leading-[1.1] group-hover:underline underline-offset-2">
           {project.title}
@@ -81,13 +104,11 @@ function ProjectCard({
 function CtaBox() {
   return (
     <div className="flex gap-3 items-center">
-      {/* Left brackets */}
       <div className="flex flex-col justify-between self-stretch shrink-0">
         <Corner />
         <Corner className="-rotate-90" />
       </div>
 
-      {/* Content */}
       <div className="flex flex-col gap-[10px] py-3 flex-1">
         <p className="italic text-[14px] text-[#1f1f1f] leading-[1.3] tracking-[-0.04em]">
           Discover how my creativity transforms ideas into impactful digital
@@ -98,7 +119,6 @@ function CtaBox() {
         </button>
       </div>
 
-      {/* Right brackets */}
       <div className="flex flex-col justify-between self-stretch shrink-0">
         <Corner className="rotate-90" />
         <Corner className="rotate-180" />
@@ -107,7 +127,13 @@ function CtaBox() {
   );
 }
 
-export default function WorksSection() {
+export default async function WorksSection() {
+  const projects: Project[] = await client
+    .fetch(`*[_type == "project"] | order(order asc)`)
+    .catch(() => []);
+
+  const displayProjects = projects.length > 0 ? projects : FALLBACK_PROJECTS;
+
   return (
     <section className="bg-[#fafafa] w-full">
       <div className="w-full max-w-[1440px] mx-auto px-4 py-12 md:px-8 md:py-20">
@@ -156,29 +182,27 @@ export default function WorksSection() {
 
         {/* Mobile: single column */}
         <div className="flex flex-col gap-6 md:hidden">
-          {PROJECTS.map((p) => (
-            <ProjectCard key={p.title} project={p} imageClassName="h-[390px]" />
+          {displayProjects.map((p) => (
+            <ProjectCard key={p._id} project={p} imageClassName="h-[390px]" />
           ))}
           <CtaBox />
         </div>
 
         {/* Desktop: 2-column staggered grid */}
         <div className="hidden md:flex gap-6">
-          {/* Left column — stretches to match right col height, CTA at bottom */}
           <div className="flex flex-col flex-1 min-w-0">
-            <ProjectCard project={PROJECTS[0]} imageClassName="h-[744px]" />
+            {displayProjects[0] && <ProjectCard project={displayProjects[0]} imageClassName="h-[744px]" />}
             <div className="h-6" />
-            <ProjectCard project={PROJECTS[1]} imageClassName="h-[699px]" />
+            {displayProjects[1] && <ProjectCard project={displayProjects[1]} imageClassName="h-[699px]" />}
             <div className="flex-1 min-h-6" />
             <div className="max-w-[465px]">
               <CtaBox />
             </div>
           </div>
 
-          {/* Right column — pt pushes content down, padding is inside flex box so container height accounts for it */}
           <div className="flex flex-col gap-[117px] flex-1 min-w-0 pt-[240px]">
-            <ProjectCard project={PROJECTS[2]} imageClassName="h-[699px]" />
-            <ProjectCard project={PROJECTS[3]} imageClassName="h-[744px]" />
+            {displayProjects[2] && <ProjectCard project={displayProjects[2]} imageClassName="h-[699px]" />}
+            {displayProjects[3] && <ProjectCard project={displayProjects[3]} imageClassName="h-[744px]" />}
           </div>
         </div>
 
